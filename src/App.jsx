@@ -1,35 +1,14 @@
-import EstudianteLayout from './layouts/EstudiantesLayout';
-import DocenteLayout from './layouts/DocentesLayout';
-import Login from './pages/Login';
-import Register from './pages/Register';
-
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-} from 'react-router-dom';
+// src/App.jsx
+import React from 'react';
+import AppRouter from './routes/AppRouter';
+// Importa tus estilos globales aquí si los tienes
+// import './assets/styles/global.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-
-        {/* Rutas de inicio de sesión */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        {/* Rutas de estudiante */}
-        <Route path="/estudiantelayout" element={<EstudianteLayout />}>
-          <Route index element={<DocenteDashboard />} /> {/* Ruta por defecto */}
-        </Route>
-
-        {/* Rutas de docente */}
-        <Route path="/docentelayout" element={<DocenteLayout />}>
-          <Route index element={<DocenteDashboard />} /> {/* Ruta por defecto */}
-        </Route>
-
-      </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <AppRouter />
+    </div>
   );
 }
 
