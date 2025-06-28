@@ -19,6 +19,7 @@ export default function Login({ onLoginSuccess }) {
       setError(error.message)
     } else {
       onLoginSuccess(data.session)
+      console.log('Inicio de sesión exitoso:', data.session)
     }
   }
 
