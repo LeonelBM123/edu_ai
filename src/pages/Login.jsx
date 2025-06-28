@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import '../index.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const navigate = useNavigate(); // 👈 para redirigir
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,34 +21,54 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      console.log('Inicio de sesión exitoso:', data.session)
+      console.log('Inicio de sesión exitoso:', data.session);
       navigate('/estudiantelayout');
     }
   };
 
   return (
-    <div style={{ maxWidth: 300, margin: 'auto' }}>
-        <h1 className="text-3xl text-primary font-bold">Hola Mau con Tailwind 🎨</h1>
-      <h2>Iniciar sesión</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        /><br /><br />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        /><br /><br />
-        <button type="submit">Ingresar</button>
-        <a href='/register'>Registrate</a>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="min-h-screen bg-gradient-to-br from-primary to-dark flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md p-8 rounded-3xl shadow-lg border border-gray-200 animate-fade-in">
+        <h2 className="text-3xl font-bold text-center text-primary mb-6">Iniciar sesión</h2>
+
+        <form onSubmit={handleLogin} className="space-y-5">
+          <input
+            type="email"
+            placeholder="Correo"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-secondary"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Contraseña"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-secondary"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            className="w-full py-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all font-semibold"
+          >
+            Ingresar
+          </button>
+        </form>
+
+        {error && (
+          <p className="text-danger mt-4 text-center font-medium">{error}</p>
+        )}
+
+        <div className="text-center mt-6 text-sm">
+          ¿No tienes cuenta?{' '}
+          <a href="/register" className="text-secondary font-semibold hover:underline">
+            Registrate
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
