@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import '../index.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export default function Login() {
 
   return (
     <div style={{ maxWidth: 300, margin: 'auto' }}>
+        <h1 className="text-3xl text-primary font-bold">Hola Mau con Tailwind 🎨</h1>
       <h2>Iniciar sesión</h2>
       <form onSubmit={handleLogin}>
         <input
