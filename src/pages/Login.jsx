@@ -1,26 +1,30 @@
-import { useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
-export default function Login({ onLoginSuccess }) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const navigate = useNavigate(); // 👈 para redirigir
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
-    })
+    });
 
     if (error) {
-      setError(error.message)
+      setError(error.message);
     } else {
-      onLoginSuccess(data.session)
+      // Redirigir al layout de estudiante
+      navigate('/estudiantelayout');
     }
-  }
+  };
 
   return (
     <div style={{ maxWidth: 300, margin: 'auto' }}>
@@ -44,5 +48,5 @@ export default function Login({ onLoginSuccess }) {
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
-  )
+  );
 }
