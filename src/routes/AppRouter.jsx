@@ -32,30 +32,20 @@ const AppRouter = () => {
           <Route path="/register" element={<Register />} />
 
           {/* Rutas protegidas con ProtectedRoute */}
-          <Route
-            path="/dashboard/teacher/*"
-            element={
-              <ProtectedRoute allowedRoles={[ 'docente' ]}>
-                <DocenteLayout />
-              </ProtectedRoute>
-            }
-          />
+          <Route element={<ProtectedRoute allowedRoles={['docente']} />}>
+            <Route path="/dashboard/teacher" element={<DocenteLayout />}>
+            </Route>
+          </Route>
           
-          <Route
-            path="/dashboard/student/*"
-            element={
-              <ProtectedRoute allowedRoles={['estudiante']}>
-              <EstudiantesLayout />
-              </ProtectedRoute>
-            }
-          >
-       {/*       <Route path="dashboard" element={<StudentDashboard />} />
+          <Route element={<ProtectedRoute allowedRoles={['estudiante']} />}>
+            <Route path="/dashboard/student" element={<EstudiantesLayout />}>
+              {/*<Route path="dashboard" element={<StudentDashboard />} />
               <Route path="lessons" element={<LessonList />} />
               <Route path="lessons/:lessonId" element={<LessonDetail />} />
               <Route path="quiz/:lessonId" element={<QuizPage />} />
               <Route path="results/:lessonId" element={<ResultsPage />} />*/}
+            </Route>
           </Route>
-
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import { ChevronLeft, BookOpen, GraduationCap, Calculator, FileText, Star, Sparkles } from 'lucide-react';
 
 const StudentDashboard = () => {
