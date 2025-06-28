@@ -29,14 +29,14 @@ export default function Register() {
 
     // 2. Insertar en la tabla usuarios
     const { user } = authData;
-    const { error: insertError } = await supabase.from('usuarios').insert({
+    const { error: insertError } = await supabase.from('usuario').insert({
       id_usuario: user.id,
-      nombre,
-      correo,
-      password, // ⚠️ No deberías guardar contraseñas en texto plano (ver nota abajo)
-      sexo,
+      nombre: nombre,
+      correo: correo,
+      password: password, // ⚠️ No deberías guardar contraseñas en texto plano (ver nota abajo)
+      sexo: sexo,
       fecha_creacion: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-      rol,
+      rol: rol,
     });
 
     if (insertError) {
@@ -76,8 +76,8 @@ export default function Register() {
           <option value="F">Femenino</option>
         </select><br /><br />
         <select value={rol} onChange={(e) => setRol(e.target.value)} required>
-          <option value="estudiante">Estudiante</option>
-          <option value="docente">Docente</option>
+          <option value="Estudiante">Estudiante</option>
+          <option value="Docente">Docente</option>
         </select><br /><br />
         <button type="submit">Registrarse</button>
       </form>
