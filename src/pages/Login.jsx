@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import '../styles/Login.css'; 
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,11 +13,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
-    // 1. Login con supabase
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError(error.message);
@@ -25,7 +22,6 @@ export default function Login() {
 
     const userId = data.user.id;
 
-    // 2. Consultar el rol en la tabla usuario
     const { data: usuarioData, error: usuarioError } = await supabase
       .from('usuario')
       .select('rol')
@@ -37,7 +33,6 @@ export default function Login() {
       return;
     }
 
-    // 3. Redirigir según el rol
     if (usuarioData.rol === 'estudiante') {
       navigate('/estudiantelayout');
     } else if (usuarioData.rol === 'docente') {
@@ -48,46 +43,42 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-dark flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md p-8 rounded-3xl shadow-lg border border-gray-200 animate-fade-in">
-        <h2 className="text-3xl font-bold text-center text-primary mb-6">Iniciar sesión</h2>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Bienvenido</h2>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <input
-            type="email"
-            placeholder="Correo"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-secondary"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="form-group">
+            <label>Correo</label>
+            <input
+              type="email"
+              placeholder="tucorreo@mail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-secondary"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="form-group">
+            <label>Contraseña</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-primary text-white rounded-xl hover:bg-secondary transition-all font-semibold"
-          >
+          <button type="submit" className="btn">
             Ingresar
           </button>
         </form>
 
-        {error && (
-          <p className="text-danger mt-4 text-center font-medium">{error}</p>
-        )}
+        {error && <p className="error-text">{error}</p>}
 
-        <div className="text-center mt-6 text-sm">
-          ¿No tienes cuenta?{' '}
-          <a href="/register" className="text-secondary font-semibold hover:underline">
-            Registrate
-          </a>
+        <div className="register-link">
+          ¿No tienes cuenta? <a href="/register">Registrate</a>
         </div>
       </div>
     </div>
