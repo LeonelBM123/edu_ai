@@ -31,7 +31,7 @@ html {
 
 body {
   min-height: 100vh;
-  background-color: var(--color-white);
+  background: linear-gradient(135deg, var(--color-dark), var(--color-primary));
   color: var(--color-dark);
   display: flex;
   align-items: center;
@@ -39,6 +39,9 @@ body {
   padding: 1rem;
 }
 
+html, body, #root {
+  height: 100%;
+}
 /* =================== TIPOGRAFÍA =================== */
 h1, h2, h3, h4, h5 {
   font-weight: 700;

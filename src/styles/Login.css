@@ -1,6 +1,5 @@
 .login-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary), var(--color-dark));
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,24 +9,65 @@
 .login-card {
   width: 100%;
   max-width: 400px;
-  background-color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: var(--blur);
+  background-color: rgba(16, 37, 66, 0.9); /* Más oscuro pero con transparencia */
+  color: var(--color-white);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 3rem 2rem;
-  animation: fadeIn 0.5s ease-in;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.4s ease-out;
   border: 1px solid var(--color-soft);
 }
 
 .login-title {
   font-size: 2rem;
-  font-weight: 800;
-  color: var(--color-primary);
+  font-weight: 700;
+  color: var(--color-accent);
   text-align: center;
   margin-bottom: 2rem;
 }
 
-/* ... y así con todo lo demás ... */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group label {
+  color: var(--color-soft);
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+input {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-soft);
+  font-size: 1rem;
+  color: var(--color-dark);
+  background-color: #fefefe;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(255, 191, 71, 0.2);
+}
+
+.btn {
+  background-color: var(--color-accent);
+  color: var(--color-dark);
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color var(--transition), transform 0.2s;
+}
+
+.btn:hover {
+  background-color: var(--color-secondary);
+  transform: scale(1.02);
+}
 
 .error-text {
   color: var(--color-danger);
@@ -36,6 +76,30 @@
   font-weight: 500;
 }
 
-.register-link a:hover {
+.register-link {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: var(--color-soft);
+}
+
+.register-link a {
   color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  color: var(--color-white);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
