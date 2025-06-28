@@ -1,3 +1,5 @@
+/*npm install -D @tailwindcss/postcss*/
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
