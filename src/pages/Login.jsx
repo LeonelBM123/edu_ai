@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import '../styles/Login.css'; 
+import '../styles/Login.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -22,21 +22,25 @@ export default function Login() {
 
     const userId = data.user.id;
 
+    // Buscar el rol en la tabla 'usuario'
     const { data: usuarioData, error: usuarioError } = await supabase
       .from('usuario')
       .select('rol')
       .eq('id_usuario', userId)
       .single();
 
-    if (usuarioError) {
+    if (usuarioError || !usuarioData) {
       setError('Error al obtener el rol del usuario.');
       return;
     }
 
-    if (usuarioData.rol === 'estudiante') {
-      navigate('/estudiantelayout');
+    // Redirigir según el rol
+    if (usuarioData.rol === 'docente') {
+      navigate('/dashboard/teacher');
+    } else if (usuarioData.rol === 'estudiante') {
+      navigate('/dashboard/student');
     } else {
-      setError('Solo los estudiantes pueden iniciar sesión.');
+      setError('Rol no reconocido. Contacta a soporte.');
     }
   };
 
@@ -76,7 +80,7 @@ export default function Login() {
         {error && <p className="error-text">{error}</p>}
 
         <div className="register-link">
-          ¿No tienes cuenta? <a href="/register">Registrate</a>
+          ¿No tienes cuenta? <a href="/register">Regístrate</a>
         </div>
       </div>
     </div>

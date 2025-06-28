@@ -1,23 +1,29 @@
 // src/routes/ProtectedRoute.jsx
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = () => {
+/**
+ * ProtectedRoute recibe un array de roles permitidos y envuelve rutas o layouts.
+ * Si el usuario no está autenticado o no tiene el rol correcto, redirige a /auth.
+ */
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    // Muestra un loader mientras se verifica la autenticación
-    return <div>Cargando...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <span className="text-lg">Cargando...</span>
+      </div>
+    );
   }
 
-  // Si el usuario no está autenticado, redirige a la página de login
-  if (!user) {
+
+  if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Si está autenticado, renderiza el componente hijo de la ruta
-  return <Outlet />;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

@@ -1,12 +1,13 @@
+// src/layouts/EstudiantesLayout.jsx
+import React from 'react';
 
-import { Outlet } from 'react-router-dom';
-
-export default function EstudianteLayout() {
+const EstudiantesLayout = () => {
   return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Hola estudiante 👨‍🎓</h1>
-      <p>Bienvenido a tu panel educativo.</p>
-       <Outlet />
+    <div className="p-6 text-center">
+      <h1 className="text-3xl font-bold">Panel del Estudiante</h1>
+      <p>Contenido exclusivo para estudiantes</p>
     </div>
   );
-}
+};
+
+export default EstudiantesLayout;
