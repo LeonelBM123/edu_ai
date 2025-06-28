@@ -34,6 +34,8 @@ export default function Login() {
       .select('rol')
       .eq('id_usuario', userId)
       .single();
+      
+    console.log('ROL:', usuarioData?.rol);
 
     if (usuarioError || !usuarioData) {
       setError('Error al obtener el rol del usuario.');
@@ -43,11 +45,11 @@ export default function Login() {
     }
 
     // Redirigir según el rol
-    if (usuarioData.rol === 'docente') {
+    if (usuarioData.rol.toLowerCase() === 'docente') {
       navigate('/dashboard/teacher');
-    } else if (usuarioData.rol === 'estudiante') {
+    } else if (usuarioData.rol.toLowerCase() === 'estudiante') {
       navigate('/dashboard/student');
-    } else {
+    }else {
       setError('Rol no reconocido. Contacta a soporte.');
     }
     setIsLoading(false);
