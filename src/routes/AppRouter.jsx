@@ -11,6 +11,8 @@ import EstudiantesLayout from '../layouts/EstudiantesLayout';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ProtectedRoute from './ProtectedRoute';
+import SeleccionCurso from '../pages/SeleccionCurso'; 
+import MateriasCursos from '../pages/MateriasCursos'; 
 
 const HomePage = () => (
   <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
@@ -34,16 +36,15 @@ const AppRouter = () => {
           {/* Rutas protegidas con ProtectedRoute */}
           <Route element={<ProtectedRoute allowedRoles={['docente']} />}>
             <Route path="/dashboard/teacher" element={<DocenteLayout />}>
+              {/* Aquí podrías añadir rutas anidadas para el dashboard del docente */}
             </Route>
           </Route>
           
           <Route element={<ProtectedRoute allowedRoles={['estudiante']} />}>
             <Route path="/dashboard/student" element={<EstudiantesLayout />}>
-              {/*<Route path="dashboard" element={<StudentDashboard />} />
-              <Route path="lessons" element={<LessonList />} />
-              <Route path="lessons/:lessonId" element={<LessonDetail />} />
-              <Route path="quiz/:lessonId" element={<QuizPage />} />
-              <Route path="results/:lessonId" element={<ResultsPage />} />*/}
+              {/* Ruta principal del dashboard del estudiante */}
+              <Route index element={<SeleccionCurso />} />
+              <Route path="materias-cursos/:id" element={<MateriasCursos />} />
             </Route>
           </Route>
 
