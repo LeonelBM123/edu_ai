@@ -6,13 +6,13 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
+    // 1. Login con supabase
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -20,9 +20,30 @@ export default function Login() {
 
     if (error) {
       setError(error.message);
-    } else {
-      console.log('Inicio de sesión exitoso:', data.session);
+      return;
+    }
+
+    const userId = data.user.id;
+
+    // 2. Consultar el rol en la tabla usuario
+    const { data: usuarioData, error: usuarioError } = await supabase
+      .from('usuario')
+      .select('rol')
+      .eq('id_usuario', userId)
+      .single();
+
+    if (usuarioError) {
+      setError('Error al obtener el rol del usuario.');
+      return;
+    }
+
+    // 3. Redirigir según el rol
+    if (usuarioData.rol === 'estudiante') {
       navigate('/estudiantelayout');
+    } else if (usuarioData.rol === 'docente') {
+      navigate('/docentelayout');
+    } else {
+      setError('Rol no reconocido.');
     }
   };
 
