@@ -1,30 +1,34 @@
 
-  import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function ConsultaCursos() {
   useEffect(() => {
     const obtenerCursos = async () => {
-      const { data, error } = await supabase
+      // Obtener todos los cursos
+      const { data: cursos, error: errorCursos } = await supabase
         .from('curso')
-        .select('nombre');
+        .select('id_curso, nombre');
 
-      if (error) {
-        console.error('Error al obtener cursos:', error);
-      } else {
-        console.log('Cursos obtenidos:', data);
+      if (errorCursos) {
+        console.error('Error al obtener cursos:', errorCursos);
+        return;
       }
-    };
 
-    const obtenerMaterias = async () => {
-      const { data, error } = await supabase
-        .from('materia_curso')
-        .select('');
+      console.log('Cursos obtenidos:', cursos);
 
-      if (error) {
-        console.error('Error al obtener cursos:', error);
-      } else {
-        console.log('Cursos obtenidos:', data);
+      // Iterar sobre los cursos y obtener las materias asociadas
+      for (const curso of cursos) {
+        const { data: materias, error: errorMaterias } = await supabase
+          .from('materia_curso')
+          .select(`materia (nombre)`)
+          .eq('id_curso', curso.id_curso);
+
+        if (errorMaterias) {
+          console.error(`Error al obtener materias para el curso ${curso.nombre}:`, errorMaterias);
+        } else {
+          console.log(`Materias del curso ${curso.nombre}:`, materias);
+        }
       }
     };
 
@@ -33,7 +37,7 @@ export default function ConsultaCursos() {
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Hola prueba</h1>
-      
-    </div>); // No renderiza nada, solo consulta
+      <h1>Consulta de Cursos</h1>
+    </div>
+  );
 }
