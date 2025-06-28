@@ -35,10 +35,8 @@ export default function Login() {
 
     if (usuarioData.rol === 'estudiante') {
       navigate('/estudiantelayout');
-    } else if (usuarioData.rol === 'docente') {
-      navigate('/docentelayout');
     } else {
-      setError('Rol no reconocido.');
+      setError('Solo los estudiantes pueden iniciar sesión.');
     }
   };
 

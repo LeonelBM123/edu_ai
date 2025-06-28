@@ -7,7 +7,6 @@ export default function Register() {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [sexo, setSexo] = useState('M');
-  const [rol, setRol] = useState('estudiante');
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
@@ -16,7 +15,6 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    // 1. Crear usuario en auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: correo.trim(),
       password: password.trim(),
@@ -27,22 +25,22 @@ export default function Register() {
       return;
     }
 
-    // 2. Insertar en la tabla usuarios
     const { user } = authData;
+
     const { error: insertError } = await supabase.from('usuario').insert({
       id_usuario: user.id,
       nombre: nombre,
       correo: correo,
-      password: password, // ⚠️ No deberías guardar contraseñas en texto plano (ver nota abajo)
+      password: password, // ⚠️ Ojo: idealmente deberías evitar guardar contraseñas acá
       sexo: sexo,
-      fecha_creacion: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-      rol: rol,
+      fecha_creacion: new Date().toISOString().split('T')[0],
+      rol: 'estudiante', // 👈 fijo el rol directamente
     });
 
     if (insertError) {
       setError(insertError.message);
     } else {
-      navigate('/'); // O redirige a login
+      navigate('/');
     }
   };
 
@@ -74,10 +72,6 @@ export default function Register() {
         <select value={sexo} onChange={(e) => setSexo(e.target.value)} required>
           <option value="M">Masculino</option>
           <option value="F">Femenino</option>
-        </select><br /><br />
-        <select value={rol} onChange={(e) => setRol(e.target.value)} required>
-          <option value="estudiante">Estudiante</option>
-          <option value="docente">Docente</option>
         </select><br /><br />
         <button type="submit">Registrarse</button>
       </form>
