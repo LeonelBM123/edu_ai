@@ -21,9 +21,7 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
-      onLoginSuccess(data.session)
       console.log('Inicio de sesión exitoso:', data.session)
-      // Redirigir al layout de estudiante
       navigate('/estudiantelayout');
     }
   };
@@ -47,6 +45,7 @@ export default function Login() {
           required
         /><br /><br />
         <button type="submit">Ingresar</button>
+        <a href='/register'>Registrate</a>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
