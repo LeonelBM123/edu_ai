@@ -3,7 +3,7 @@ import EstudianteLayout from './layouts/EstudiantesLayout';
 import DocenteLayout from './layouts/DocentesLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
-
+import EstudianteDashboard from './pages/EstudianteDashboard';
 
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         {/* Rutas de estudiantes */}
         <Route path="/estudiantelayout" element={<EstudianteLayout />}>
-
+        <Route index element={<EstudianteDashboard/>} />
         </Route>
 
         {/* Rutas de docentes */}
