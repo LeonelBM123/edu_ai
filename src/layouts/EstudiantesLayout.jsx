@@ -349,4 +349,4 @@ const StudentDashboard = () => {
   );
 };
 
-export default StudentLevelSelection;
+export default StudentDashboard;
