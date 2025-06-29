@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { fetchCourses, fetchSubjectsForCourse, fetchSyllabusForSubject, fetchCurrentUserData } from './api'; // Asegúrate de que la ruta sea correcta
 import {
     BookOpen, GraduationCap, Calculator, FileText, Music, Microscope, Target, Sparkles, Home,
-    ChevronRight, ChevronDown, Play, Circle, Loader
+    ChevronRight, ChevronDown, Play, Circle, Loader, MessageSquare
 } from 'lucide-react';
+import { Bot } from 'lucide-react';
+
 
 // Función para obtener un icono basado en el nombre de la materia
 const getIconForSubject = (subjectName) => {
@@ -19,7 +21,6 @@ const getIconForSubject = (subjectName) => {
 
 
 // Función para crear elementos flotantes de fondo
-// He actualizado esta función para que reciba el ElementComponent y los colores si son dinámicos
 const createFloatingElement = (index, ElementComponent, colors) => (
     <ElementComponent
         key={index}
@@ -33,7 +34,6 @@ const createFloatingElement = (index, ElementComponent, colors) => (
             animationDuration: `${3 + Math.random() * 4}s`,
         }}
     />
-    
 );
 
 const StudentDashboard = () => {
@@ -52,6 +52,14 @@ const StudentDashboard = () => {
     const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
     const [isLoadingSyllabus, setIsLoadingSyllabus] = useState(false);
 
+    // --- Estados para el Chatbot ---
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [chatMessages, setChatMessages] = useState([]);
+    const [chatInput, setChatInput] = useState('');
+    const [isChatLoading, setIsChatLoading] = useState(false);
+    const chatMessagesEndRef = useRef(null); // Ref para scroll automático
+
+
     useEffect(() => {
         setMounted(true);
         const loadInitialData = async () => {
@@ -67,6 +75,12 @@ const StudentDashboard = () => {
         };
         loadInitialData();
     }, []);
+
+    useEffect(() => {
+        if (chatMessagesEndRef.current) {
+            chatMessagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [chatMessages]);
 
     const handleCourseClick = async (courseId) => {
         if (selectedCourseId === courseId) {
@@ -96,6 +110,61 @@ const StudentDashboard = () => {
         const syllabusData = await fetchSyllabusForSubject(subject.id_materia, selectedCourseId);
         setSyllabus(syllabusData);
         setIsLoadingSyllabus(false);
+    };
+
+    // --- Funciones del Chatbot ---
+    const handleSendChatMessage = async (e) => {
+        e.preventDefault();
+        if (chatInput.trim() === '') return;
+
+        const newUserMessage = { sender: 'user', text: chatInput };
+        setChatMessages((prevMessages) => [...prevMessages, newUserMessage]);
+        setChatInput('');
+        setIsChatLoading(true);
+
+        try {
+            // Construir el contexto para el chatbot
+            let context = "";
+            if (selectedCourseId) {
+                const currentCourse = courses.find(c => c.id_curso === selectedCourseId);
+                if (currentCourse) {
+                    context += `El estudiante está en el curso: ${currentCourse.nombre}. `;
+                }
+            }
+            if (selectedSubject) {
+                context += `Actualmente viendo la materia: ${selectedSubject.nombre} - ${selectedSubject.descripcion}. `;
+            }
+            if (syllabus.length > 0) {
+                context += `Los temas de la materia son: ${syllabus.map(t => `${t.nro_tema}. ${t.titulo}`).join(', ')}. `;
+            }
+
+            // Realizar la llamada al backend para obtener la respuesta del chatbot
+            // ASUME UN ENDPOINT DE BACKEND EN '/api/chat'
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question: chatInput,
+                    context: context // Envía el contexto
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al conectar con el chatbot');
+            }
+
+            const data = await response.json();
+            const botMessage = { sender: 'bot', text: data.reply || "Lo siento, no pude procesar tu solicitud en este momento." };
+            setChatMessages((prevMessages) => [...prevMessages, botMessage]);
+
+        } catch (error) {
+            console.error('Error al enviar mensaje al chatbot:', error);
+            setChatMessages((prevMessages) => [...prevMessages, { sender: 'bot', text: "Hubo un error al comunicarse con el asistente. Intenta de nuevo más tarde." }]);
+        } finally {
+            setIsChatLoading(false);
+        }
     };
 
     // --- Componente CourseCard (Estilizado con v2) ---
@@ -343,6 +412,71 @@ const StudentDashboard = () => {
                     </main>
                 </div>
             </div>
+
+            {/* Botón flotante para el Chatbot */}
+            <button onClick={() => setIsChatOpen(!isChatOpen)} 
+                className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 z-50"
+                aria-label="Abrir Chatbot">
+                <Bot className="w-6 h-6" />
+            </button>
+
+            {/* Ventana del Chatbot */}
+            {isChatOpen && (
+                <div className="fixed bottom-24 right-6 w-80 h-[450px] bg-slate-800/95 backdrop-blur-lg rounded-xl shadow-2xl flex flex-col z-50 border border-blue-500/30 animate-slide-in-right">
+                    <div className="flex justify-between items-center p-4 bg-blue-600 rounded-t-xl">
+                        <h3 className="text-lg font-bold text-white">Asistente Académico</h3>
+                        <button onClick={() => setIsChatOpen(false)} className="text-white hover:text-blue-200">
+                            &times;
+                        </button>
+                    </div>
+                    <div className="flex-1 p-4 overflow-y-auto space-y-3 custom-scrollbar">
+                        {chatMessages.length === 0 && (
+                            <div className="text-center text-white/70 mt-10">
+                                <Sparkles className="w-8 h-8 mx-auto mb-2 text-blue-300" />
+                                <p>¡Hola! Pregúntame sobre tus cursos y materias.</p>
+                            </div>
+                        )}
+                        {chatMessages.map((msg, index) => (
+                            <div
+                                key={index}
+                                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`max-w-[70%] p-3 rounded-lg text-white ${
+                                    msg.sender === 'user' ? 'bg-blue-500' : 'bg-gray-700'
+                                }`}>
+                                    {msg.text}
+                                </div>
+                            </div>
+                        ))}
+                        {isChatLoading && (
+                            <div className="flex justify-start">
+                                <div className="max-w-[70%] p-3 rounded-lg bg-gray-700">
+                                    <Loader className="w-5 h-5 text-white animate-spin" />
+                                </div>
+                            </div>
+                        )}
+                        <div ref={chatMessagesEndRef} /> {/* Elemento para scroll */}
+                    </div>
+                    <form onSubmit={handleSendChatMessage} className="p-4 border-t border-gray-700 flex gap-2">
+                        <input
+                            type="text"
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder="Escribe tu pregunta..."
+                            className="flex-1 p-2 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={isChatLoading}
+                        />
+                        <button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors duration-200"
+                            disabled={isChatLoading}
+                        >
+                            Enviar
+                        </button>
+                    </form>
+                </div>
+            )}
+
 
             {/* Estilos personalizados para animaciones y scrollbar */}
             <style jsx>{`
