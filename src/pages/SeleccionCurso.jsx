@@ -146,7 +146,7 @@ const SeleccionCursos = () => {
                   disabled={!habilitado}
                   onClick={() => habilitado && navigate(`materias-cursos/${cursoIdActual()}`)}
                 >
-                  {gradoTexto}
+                   {gradoTexto}
                 </button>
               );
             })}
