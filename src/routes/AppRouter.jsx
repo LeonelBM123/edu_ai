@@ -45,9 +45,9 @@ const AppRouter = () => {
           <Route element={<ProtectedRoute allowedRoles={['estudiante']} />}>
             <Route path="/dashboard/student" element={<EstudiantesLayout />}>
               {/* Ruta principal del dashboard del estudiante */}
-              {/*<Route index element={<SeleccionCurso />} />*/}
-              {/*<Route path="materias-cursos/:id" element={<MateriasCursos />} />*/}
-              <Route path="tema/:titulo" element={<Tema />} />
+              {/* <Route index element={<SeleccionCurso />} />*/}
+              {/* <Route path="materias-cursos/:id" element={<MateriasCursos />} />*/}
+              <Route path="tema/:id" element={<Tema />} />
             </Route>
           </Route>
 

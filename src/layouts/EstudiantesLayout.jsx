@@ -116,7 +116,7 @@ const StudentDashboard = () => {
         return (
             <div className={`bg-gradient-to-r ${cardColors[index % cardColors.length]} rounded-xl shadow-lg transform transition-all duration-300 hover:scale-102 hover:shadow-xl ${isSelected ? 'ring-2 ring-white/50 scale-102' : ''} relative overflow-hidden`}>
                 {/* Efecto sutil de brillo */}
-                <Outlet />
+                
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 transform translate-x-[-100%] animate-subtle-shine"></div>
 
                 <div className="p-5 cursor-pointer flex justify-between items-center relative z-10" onClick={() => handleCourseClick(course.id_curso)}>
@@ -214,6 +214,7 @@ const StudentDashboard = () => {
                 </div>
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                
                     <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                         <Target className="w-5 h-5 text-blue-400" />
                         Temas del Curso
@@ -242,9 +243,14 @@ const StudentDashboard = () => {
                                   
                                     <div
                                       key={tema.id_tema}
-                                      onClick={() => navigate(`/tema/${encodeURIComponent(tema.titulo)}`)}
+                                      
+                                      onClick={() => {
+                                            sessionStorage.setItem('temaSeleccionado', JSON.stringify(tema));
+                                            navigate(`tema/${tema.id_tema}`);
+                                          }}
                                       className={`flex items-center gap-4 p-4 ${bgColors[index % bgColors.length]} rounded-lg shadow-md hover:shadow-lg transform hover:scale-102 transition-all duration-200 group cursor-pointer`}
                                     >
+                                      
                                         <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
                                             <span className="text-lg">{icons[index % icons.length]}</span>
                                         </div>
@@ -266,6 +272,7 @@ const StudentDashboard = () => {
                         </div>
                     )}
                 </div>
+                <Outlet />
             </div>
         );
     };

@@ -4,10 +4,22 @@ import axios from 'axios';
 import { Send, Bot, User } from 'lucide-react';
 
 const Tema = () => {
-  const { titulo } = useParams(); // 👈 Usamos correctamente el parámetro de la URL
+  const { id } = useParams(); // id_tema
+  const tema = JSON.parse(sessionStorage.getItem('temaSeleccionado'));
+
   const [input, setInput] = useState('');
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const sessionId = tema?.id_tema || id; // puede usar el ID como sessionId básico
+
+  if (!tema) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white p-6">
+        <p>No se encontró información del tema. Intenta navegar desde la lista de temas.</p>
+      </div>
+    );
+  }
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -18,12 +30,13 @@ const Tema = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:8081/chatbot', {
-        mensaje: input,
-        titulo: decodeURIComponent(titulo), // por si tiene espacios o caracteres especiales
+      const { data } = await axios.post('https://leonelbm123.app.n8n.cloud/webhook/88c9920c-a0ba-4d6f-bd01-1d05822de639/chat', {
+        sessionId: "4ba5b130fc0644ad98ec905cb1c672d3",
+        action: 'sendMessage',
+        chatInput: input,
       });
 
-      setChat([...newChat, { sender: 'bot', text: data.respuesta }]);
+      setChat([...newChat, { sender: 'bot', text: data.respuesta || 'Sin respuesta.' }]);
     } catch (error) {
       setChat([...newChat, { sender: 'bot', text: 'Hubo un error al obtener respuesta del bot.' }]);
     } finally {
@@ -33,7 +46,9 @@ const Tema = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white p-6 flex flex-col">
-      <h1 className="text-3xl font-bold mb-4 text-center">💬 Chat con tu IA - Tema: <span className="italic">{titulo}</span></h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">
+        💬 Chat con tu IA - Tema: <span className="italic">{tema?.titulo ?? 'Sin título'}</span>
+      </h1>
 
       <div className="flex-1 overflow-y-auto bg-white/10 rounded-xl p-4 space-y-4 mb-4 backdrop-blur-sm border border-white/20 custom-scrollbar">
         {chat.map((msg, i) => (
