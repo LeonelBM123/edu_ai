@@ -7,6 +7,8 @@ import { AuthProvider } from '../contexts/AuthContext';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ProtectedRoute from './ProtectedRoute';
+import SeleccionCurso from '../pages/SeleccionCurso'; 
+import MateriasCursos from '../pages/MateriasCursos'; 
 
 // Layouts
 import DocenteLayout from '../layouts/DocentesLayout';
@@ -35,13 +37,20 @@ const AppRouter = () => {
           {/* Rutas protegidas con ProtectedRoute */}
           <Route element={<ProtectedRoute allowedRoles={['docente']} />}>
             <Route path="/dashboard/teacher" element={<DocenteLayout />}>
+              {/* Aquí podrías añadir rutas anidadas para el dashboard del docente */}
             </Route>
           </Route>
           
           <Route element={<ProtectedRoute allowedRoles={['estudiante']} />}>
             <Route path="/dashboard/student" element={<EstudiantesLayout />}>
+<<<<<<< HEAD
               {/*<Route path="quiz/:lessonId" element={<QuizPage />} />
               <Route path="results/:lessonId" element={<ResultsPage />} />*/}
+=======
+              {/* Ruta principal del dashboard del estudiante */}
+              <Route index element={<SeleccionCurso />} />
+              <Route path="materias-cursos/:id" element={<MateriasCursos />} />
+>>>>>>> bbdeb2d1359706c9ad03fbd5b501c0fd0f521c1a
             </Route>
           </Route>
 
