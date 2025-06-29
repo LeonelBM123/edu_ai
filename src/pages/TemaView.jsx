@@ -1,146 +1,145 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, Sparkles, BookOpen } from 'lucide-react';
-import { marked } from 'marked'; // Para renderizar el texto de la IA como Markdown
+import { ArrowLeft, Send, Sparkles, BookOpen, User, GraduationCap, Loader } from 'lucide-react';
+import { marked } from 'marked';
+import axios from 'axios'; // Asegúrate de tener axios instalado
 
-// --- SIMULADOR DE IA ---
-// Esta función genera la explicación inicial del tema.
-const generateInitialExplanation = (tema) => {
-    // En una aplicación real, podrías tener resúmenes y ejemplos predefinidos en tu base de datos.
-    const resumen = tema.resumen || `Aquí va un resumen detallado sobre **${tema.titulo}**. El objetivo es entender los conceptos fundamentales de una manera clara y sencilla.`;
-    const ejemplo = tema.ejemplo || `Para que quede más claro, imagina el siguiente escenario: [Aquí iría un ejemplo práctico relacionado con ${tema.titulo}].`;
-
-    return `¡Hola! 👋 Vamos a explorar juntos el **Tema ${tema.nro_tema}: ${tema.titulo}**.
-\n\n### Resumen del Tema
-${resumen}
-\n\n### Ejemplo Práctico
-${ejemplo}
-\n\n---
-\nAhora es tu turno. Si algo no quedó claro, tienes alguna duda o simplemente quieres otro ejemplo, ¡escribe tu pregunta aquí abajo! También puedes pedirme que te plantee algunos ejercicios para practicar. 😊`;
-};
-
-// Esta función simula las respuestas de la IA a las preguntas del estudiante.
-const generateAiResponse = (userMessage, tema) => {
-    const message = userMessage.toLowerCase();
-
-    if (message.includes('ejercicio') || message.includes('practicar') || message.includes('problema')) {
-        const ejercicio = tema.ejercicio_propuesto || `Define en tus propias palabras qué es el concepto más importante de "${tema.titulo}".`;
-        return `¡Excelente idea! La práctica hace al maestro. Aquí tienes un ejercicio:
-\n\n**Desafío:**
-> ${ejercicio}
-\n\n_Tómate tu tiempo para resolverlo. Cuando estés listo, puedes compartir tu respuesta o preguntarme si tienes dificultades._`;
-    }
-    if (message.includes('pregunta') || message.includes('duda') || message.includes('entiendo')) {
-        const reexplicacion = tema.reexplicacion || `Lo más importante a recordar sobre **${tema.titulo}** es [aquí iría una re-explicación simplificada del concepto clave].`;
-        return `¡Claro que sí! Es normal tener dudas.
-\n${reexplicacion}
-\n\n¿Esta explicación te ayuda un poco más o te gustaría que lo intente con otro ejemplo?`;
-    }
-    if (message.includes('gracias') || message.includes('agradezco')) {
-        return '¡De nada! Estoy aquí para ayudarte. ¿Hay algo más en lo que pueda asistirte? ¿Quizás un ejercicio para afianzar lo aprendido?';
-    }
-    if (message.includes('hola') || message.includes('saludos')) {
-        return '¡Hola de nuevo! ¿Listo para seguir aprendiendo?';
-    }
-
-    // Respuesta por defecto
-    return `Es un punto interesante. Respecto a lo que mencionas, en el contexto de **${tema.titulo}**, es crucial considerar que... [Aquí iría una respuesta genérica elaborada].
-\n\n¿Hay algo más específico sobre esto que te gustaría saber?`;
-};
-
+// URL de tu webhook de n8n
+const BOT_API_URL = 'https://leonelbm123.app.n8n.cloud/webhook/88c9920c-a0ba-4d6f-bd01-1d05822de639/chat';
+const SESSION_ID = '4ba5b130fc0644ad98ec905cb1c672d3'; // sessionId fijo
 
 const TemaView = () => {
     const navigate = useNavigate();
     const { id_tema } = useParams();
-    const [tema, setTema] = useState(null);
+
+    const [chatContext, setChatContext] = useState(null);
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const chatEndRef = useRef(null);
 
+    // Función para llamar a la API del bot
+    const callChatbotAPI = async (message) => {
+        try {
+            // Aquí estaba mal armado el axios.post (no es fetch), lo corregí:
+            const response = await axios.post(BOT_API_URL, {
+                sessionId: SESSION_ID,
+                action: 'sendMessage',
+                chatInput: message
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            // Ajusta la respuesta si cambia la estructura
+            return response.data.output || response.data.text || "No he podido procesar esa respuesta.";
+
+        } catch (error) {
+            console.error("Error al contactar al bot:", error);
+            return "Lo siento, estoy teniendo problemas para conectarme. Por favor, intenta de nuevo más tarde.";
+        }
+    };
+
     useEffect(() => {
-        // Obtenemos el tema desde sessionStorage, como lo guardaste en el dashboard.
-        const storedTema = JSON.parse(sessionStorage.getItem('temaSeleccionado'));
-        
-        // Verificamos que el tema guardado coincida con el de la URL para evitar inconsistencias.
-        if (storedTema && storedTema.id_tema.toString() === id_tema) {
-            setTema(storedTema);
-            const initialMessage = {
-                id: 1,
-                author: 'ai',
-                text: generateInitialExplanation(storedTema)
+        const storedContext = JSON.parse(sessionStorage.getItem('chatContext'));
+
+        if (storedContext && storedContext.tema.id_tema.toString() === id_tema) {
+            setChatContext(storedContext);
+
+            const sendInitialPrompt = async () => {
+                setIsTyping(true);
+
+                const { studentName, courseName, subjectName, tema } = storedContext;
+                const initialPrompt = `Hola, me llamo ${studentName}, estoy en el curso ${courseName}, aprendo la materia ${subjectName} y quiero aprender sobre el tema ${tema.titulo}`;
+
+                const botResponse = await callChatbotAPI(initialPrompt);
+
+                const initialMessage = {
+                    id: 1,
+                    author: 'ai',
+                    text: botResponse
+                };
+                setMessages([initialMessage]);
+                setIsTyping(false);
             };
-            setMessages([initialMessage]);
+
+            sendInitialPrompt();
+
         } else {
-            // Si no hay datos (ej. el usuario recarga la página o entra por URL directa),
-            // lo ideal sería hacer un fetch a la API para obtener los datos del tema.
-            // Por ahora, lo regresamos al dashboard.
-            console.error("No se encontraron datos del tema. Redirigiendo...");
-            navigate('/dashboard-estudiante'); // Asegúrate que esta ruta sea la correcta.
+            console.error("No se encontraron datos de contexto. Redirigiendo...");
+            navigate('/dashboard/student');
         }
     }, [id_tema, navigate]);
 
     useEffect(() => {
-        // Efecto para hacer scroll automático al final del chat cuando llega un mensaje nuevo.
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    const handleSendMessage = (e) => {
+    const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!userInput.trim() || isTyping) return;
 
-        const userMessage = { id: Date.now(), author: 'user', text: userInput };
+        const userMessageText = userInput;
+        const userMessage = { id: Date.now(), author: 'user', text: userMessageText };
+
         setMessages(prev => [...prev, userMessage]);
         setUserInput('');
         setIsTyping(true);
 
-        // Simular el tiempo de respuesta de la IA
-        setTimeout(() => {
-            const aiResponseText = generateAiResponse(userInput, tema);
-            const aiMessage = { id: Date.now() + 1, author: 'ai', text: aiResponseText };
-            setMessages(prev => [...prev, aiMessage]);
-            setIsTyping(false);
-        }, 1500 + Math.random() * 800);
+        const botResponse = await callChatbotAPI(userMessageText);
+
+        const aiMessage = { id: Date.now() + 1, author: 'ai', text: botResponse };
+        setMessages(prev => [...prev, aiMessage]);
+        setIsTyping(false);
     };
 
-    if (!tema) {
-        // Pantalla de carga mientras se validan los datos.
-        return <div className="min-h-screen bg-slate-900 text-white flex justify-center items-center">Cargando tema...</div>;
+    if (!chatContext || (messages.length === 0 && isTyping)) {
+        return (
+            <div className="min-h-screen bg-slate-900 text-white flex flex-col justify-center items-center">
+                <div className="relative mb-6">
+                    <Loader className="w-12 h-12 text-white animate-spin" />
+                    <div className="absolute inset-0 w-12 h-12 border-2 border-blue-400/30 rounded-full animate-ping"></div>
+                </div>
+                <p className="text-white text-lg">Iniciando asistente...</p>
+            </div>
+        );
     }
+
+    const { studentName, courseName, subjectName, tema } = chatContext;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 font-sans text-white flex flex-col">
-            {/* Header */}
             <header className="bg-slate-800/50 backdrop-blur-sm p-4 flex items-center gap-4 sticky top-0 z-20 border-b border-white/10">
                 <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-6 h-6"/>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-6 h-6" />
                 </div>
-                <div>
-                    <h1 className="font-bold text-lg">{tema.titulo}</h1>
-                    <p className="text-sm text-white/70">Tema {tema.nro_tema}</p>
+                <div className='flex-grow min-w-0'>
+                    <h1 className="font-bold text-lg truncate" title={tema.titulo}>{tema.titulo}</h1>
+                    <div className="flex items-center gap-4 text-xs text-white/60 overflow-x-auto custom-scrollbar-hidden">
+                        <span className='flex items-center gap-1.5 flex-shrink-0'><User className='w-3 h-3' /> {studentName}</span>
+                        <span className='flex items-center gap-1.5 flex-shrink-0'><GraduationCap className='w-3 h-3' /> {courseName}</span>
+                        <span className='flex items-center gap-1.5 flex-shrink-0'><Sparkles className='w-3 h-3' /> {subjectName}</span>
+                    </div>
                 </div>
             </header>
 
-            {/* Chat Area */}
             <main className="flex-1 p-4 md:p-6 overflow-y-auto">
                 <div className="max-w-3xl mx-auto space-y-6">
                     {messages.map(message => (
-                        <div key={message.id} className={`flex gap-3 ${message.author === 'user' ? 'justify-end' : ''}`}>
+                        <div key={message.id} className={`flex gap-3 ${message.author === 'user' ? 'justify-end' : 'justify-start'}`}>
                             {message.author === 'ai' && (
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0 flex items-center justify-center self-end">
                                     <Sparkles className="w-4 h-4 text-white" />
                                 </div>
                             )}
                             <div
-                                className={`max-w-xl p-4 rounded-2xl ${message.author === 'user'
+                                className={`max-w-xl p-4 rounded-2xl break-words ${message.author === 'user'
                                     ? 'bg-blue-600 rounded-br-none'
                                     : 'bg-slate-700/80 rounded-bl-none'
-                                }`}
+                                    }`}
                             >
-                                {/* Usamos `marked` para interpretar el texto como Markdown (negritas, listas, etc.) */}
                                 <div
                                     className="prose prose-invert prose-p:my-2 prose-headings:my-3"
                                     dangerouslySetInnerHTML={{ __html: marked(message.text) }}
@@ -149,22 +148,21 @@ const TemaView = () => {
                         </div>
                     ))}
                     {isTyping && (
-                         <div className="flex gap-3">
-                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0 flex items-center justify-center">
-                                 <Sparkles className="w-4 h-4 text-white" />
-                             </div>
-                             <div className="max-w-xl p-4 rounded-2xl bg-slate-700/80 rounded-bl-none flex items-center gap-2">
-                                <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0s'}}></span>
-                                <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                                <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-                             </div>
-                         </div>
+                        <div className="flex gap-3 justify-start">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0 flex items-center justify-center self-end">
+                                <Sparkles className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="max-w-xl p-4 rounded-2xl bg-slate-700/80 rounded-bl-none flex items-center gap-2">
+                                <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+                                <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                            </div>
+                        </div>
                     )}
                     <div ref={chatEndRef} />
                 </div>
             </main>
 
-            {/* Input Form */}
             <footer className="sticky bottom-0 p-4 bg-slate-900/50 backdrop-blur-sm border-t border-white/10 z-10">
                 <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex items-center gap-3">
                     <input

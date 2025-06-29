@@ -243,17 +243,32 @@ const StudentDashboard = () => {
                                   
                                     <div
                                       key={tema.id_tema}
-                                      
                                       onClick={() => {
-                                            sessionStorage.setItem('temaSeleccionado', JSON.stringify(tema));
-                                            navigate(`tema/${tema.id_tema}`);
-                                          }}
+                          
+
+                                          // 1. Encontrar el nombre del curso actual.
+                                          const selectedCourse = courses.find(c => c.id_curso === selectedCourseId);
+
+                                          // 2. Crear el objeto de contexto con toda la información.
+                                          const chatContext = {
+                                              studentName: studentInfo?.nombre || 'Estudiante',
+                                              courseName: selectedCourse?.nombre || 'Curso Desconocido',
+                                              subjectName: selectedSubject?.nombre || 'Materia Desconocida',
+                                              tema: tema // Aquí incluimos el objeto completo del tema
+                                          };
+
+                                          // 3. Guardar el objeto de contexto completo en sessionStorage.
+                                          sessionStorage.setItem('chatContext', JSON.stringify(chatContext));
+                                          
+                                          // 4. Navegar a la vista del tema.
+                                          
+                                          navigate(`/dashboard/student/tema/${tema.id_tema}`);
+                                          
+                                        
+                                      }}
                                       className={`flex items-center gap-4 p-4 ${bgColors[index % bgColors.length]} rounded-lg shadow-md hover:shadow-lg transform hover:scale-102 transition-all duration-200 group cursor-pointer`}
-                                    >
-                                      
-                                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                                            <span className="text-lg">{icons[index % icons.length]}</span>
-                                        </div>
+                                  >
+                                     
                                         <div className="flex-1">
                                             <span className="text-white font-semibold">
                                                 Tema {tema.nro_tema}: {tema.titulo}
