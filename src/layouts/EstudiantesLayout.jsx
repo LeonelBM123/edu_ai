@@ -317,7 +317,7 @@ const StudentDashboard = () => {
 
                                           // 1. Encontrar el nombre del curso actual.
                                           const selectedCourse = courses.find(c => c.id_curso === selectedCourseId);
-
+                                            //pp
                                           // 2. Crear el objeto de contexto con toda la información.
                                           const chatContext = {
                                               studentName: studentInfo?.nombre || 'Estudiante',
