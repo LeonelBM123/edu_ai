@@ -3,14 +3,15 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 
-// Layouts
-import DocenteLayout from '../layouts/DocentesLayout';
-import EstudiantesLayout from '../layouts/EstudiantesLayout';
-
 // Pages
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ProtectedRoute from './ProtectedRoute';
+
+// Layouts
+import DocenteLayout from '../layouts/DocentesLayout';
+import EstudiantesLayout from '../layouts/EstudiantesLayout';
+
 
 const HomePage = () => (
   <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
@@ -39,10 +40,7 @@ const AppRouter = () => {
           
           <Route element={<ProtectedRoute allowedRoles={['estudiante']} />}>
             <Route path="/dashboard/student" element={<EstudiantesLayout />}>
-              {/*<Route path="dashboard" element={<StudentDashboard />} />
-              <Route path="lessons" element={<LessonList />} />
-              <Route path="lessons/:lessonId" element={<LessonDetail />} />
-              <Route path="quiz/:lessonId" element={<QuizPage />} />
+              {/*<Route path="quiz/:lessonId" element={<QuizPage />} />
               <Route path="results/:lessonId" element={<ResultsPage />} />*/}
             </Route>
           </Route>
