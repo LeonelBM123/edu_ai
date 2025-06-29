@@ -7,8 +7,9 @@ import { AuthProvider } from '../contexts/AuthContext';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import ProtectedRoute from './ProtectedRoute';
-import SeleccionCurso from '../pages/SeleccionCurso'; 
-import MateriasCursos from '../pages/MateriasCursos'; 
+//import SeleccionCurso from '../pages/SeleccionCurso'; 
+//import MateriasCursos from '../pages/MateriasCursos'; 
+import Tema from '../pages/Tema';
 
 // Layouts
 import DocenteLayout from '../layouts/DocentesLayout';
@@ -44,9 +45,9 @@ const AppRouter = () => {
           <Route element={<ProtectedRoute allowedRoles={['estudiante']} />}>
             <Route path="/dashboard/student" element={<EstudiantesLayout />}>
               {/* Ruta principal del dashboard del estudiante */}
-              <Route index element={<SeleccionCurso />} />
-              <Route path="materias-cursos/:id" element={<MateriasCursos />} />
-
+              {/*<Route index element={<SeleccionCurso />} />*/}
+              {/*<Route path="materias-cursos/:id" element={<MateriasCursos />} />*/}
+              <Route path="tema/:titulo" element={<Tema />} />
             </Route>
           </Route>
 
