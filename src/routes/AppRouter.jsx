@@ -9,7 +9,7 @@ import Register from '../pages/Register';
 import ProtectedRoute from './ProtectedRoute';
 //import SeleccionCurso from '../pages/SeleccionCurso'; 
 //import MateriasCursos from '../pages/MateriasCursos'; 
-import Tema from '../pages/Tema';
+import TemaView from '../pages/TemaView';
 
 // Layouts
 import DocenteLayout from '../layouts/DocentesLayout';
@@ -47,10 +47,13 @@ const AppRouter = () => {
               {/* Ruta principal del dashboard del estudiante */}
               {/* <Route index element={<SeleccionCurso />} />*/}
               {/* <Route path="materias-cursos/:id" element={<MateriasCursos />} />*/}
-              <Route path="tema/:id" element={<Tema />} />
+              
             </Route>
           </Route>
 
+          <Route path="/dashboard/student/tema/:id_tema" element={<TemaView />} />
+
+          
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

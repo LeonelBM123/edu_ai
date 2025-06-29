@@ -271,9 +271,11 @@ const StudentDashboard = () => {
                                 </div>}
                         </div>
                     )}
+                    <Outlet />
                 </div>
-                <Outlet />
+                
             </div>
+            
         );
     };
 
